@@ -1,0 +1,140 @@
+# pip install PyOpenGL PyOpenGL_accelerate
+# pip install pygame
+# pip install keyboard
+# pip install numpy
+
+
+import numpy as np
+import pygame
+from pygame.locals import *
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
+import keyboard
+
+verticies = (
+    (1, -1, -1),
+    (1, 1, -1),
+    (-1, 1, -1),
+    (-1, -1, -1),
+    (1, -1, 1),
+    (1, 1, 1),
+    (-1, -1, 1),
+    (-1, 1, 1)
+    )
+
+edges = (
+    (0,1),
+    (0,3),
+    (0,4),
+    (2,1),
+    (2,3),
+    (2,7),
+    (6,3),
+    (6,4),
+    (6,7),
+    (5,1),
+    (5,4),
+    (5,7)
+    )
+
+
+def Cube():
+    glBegin(GL_LINES)
+    for edge in edges:
+        for vertex in edge:
+            glVertex3fv(verticies[vertex])
+    glEnd()
+	
+
+def main():
+    # Translação do cubo verde
+    tx = 0
+    ty = 0
+ 
+    pygame.init()
+    display = (1000,800)
+    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    gluPerspective(45, (display[0]/display[1]), 0.1, 20.0)
+
+    # Comentado, uma vez que posicionaremos a câmera
+    #glTranslatef(0.0,0.0, -10)
+
+    # eye = (0, 0, 10)
+    eye = np.zeros(3)
+    eye[2] = 10
+
+    # target = (0, 0, 0)
+    target = np.zeros(3)
+
+    # up = (1, 0, 0)
+    up = np.zeros(3)
+    up[0] = 0
+    up[1] = 1
+    up[2] = 0
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif  event.type == pygame.KEYDOWN :
+		# Movimentação do cubo
+                if event.key==K_w:
+                    ty = ty + 0.5
+                elif event.key==K_z:
+                    ty = ty - 0.5
+                elif event.key==K_a:
+                    tx = tx - 0.5
+                elif event.key==K_s:
+                    tx = tx + 0.5
+
+		# Movimentação da direção da câmera 
+		# nos eixos X e Y (olho)
+                elif event.key==K_UP:
+                    target[1] = target[1] + 0.5
+                elif event.key==K_DOWN:
+                    target[1] = target[1] - 0.5
+                elif event.key==K_RIGHT:
+                    target[0] = target[0] + 0.5
+                elif event.key==K_LEFT:
+                    target[0] = target[0] - 0.5
+
+		# Movimentação da câmera no eixo Z (olho)
+                elif event.key==K_PAGEUP:
+                    eye[2] = eye[2] - 0.5
+			
+                elif event.key==K_PAGEDOWN:
+                    eye[2] = eye[2] + 0.5
+
+
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        glPushMatrix()
+
+        gluLookAt(eye[0], eye[1], eye[2], 
+            target[0], target[1], target[2], 
+		    up[0], up[1], up[2] )
+
+        glColor3fv((0, 0, 1))
+	# Cubo azul
+        Cube()
+
+        glPushMatrix()
+        glTranslatef(tx,ty, 0.)
+        glColor3fv((0, 1, 0))
+	# Cubo verde
+        Cube()
+        glPopMatrix()
+
+        glPopMatrix()
+
+        pygame.display.flip()
+        pygame.time.wait(10)
+
+
+main()
