@@ -1,0 +1,41 @@
+# pip install PyOpenGL PyOpenGL_accelerate
+# pip install pygame
+import pygame
+from pygame.locals import *
+ 
+from OpenGL.GL import *
+from OpenGL.GLU import *
+ 
+def main():
+    pygame.init()
+    janela = (800, 400)
+    pygame.display.set_mode(janela, DOUBLEBUF|OPENGL)
+ 
+    print(janela[0], janela[1],janela[0]/ janela[1])
+ 
+                  # fov, ratio,             near, far
+    gluPerspective(45, (janela[0]/janela[1]), 0.1, 50.0)
+ 
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  
+                pygame.quit()
+                quit()
+ 
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+ 
+        #desenhar meus objetos
+ 
+        z = -10
+ 
+        glBegin(GL_QUADS)
+        
+        glVertex3fv((-1, -1, z))
+        glVertex3fv((-1, 1, z))
+        glVertex3fv((1, 1, z))
+        glVertex3fv((1, -1, z))
+        
+        glEnd()
+ 
+        pygame.display.flip()
+main()
